@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
       compress_or_decompress = decompress;
     } else if (*argv[i] == '-') {
       fprintf(stderr, "%s: unknown option '%s'\n", argv[0], argv[i]);
-      exit(1);
+      exit(1); 
     } else if (argc - i > 2) {
       fprintf(stderr, "Usage: %s -d [filename]\n"
                       "       %s -c [filename]\n", argv[0], argv[0]);
