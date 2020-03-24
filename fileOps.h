@@ -1,4 +1,5 @@
-#ifndef 
+#ifndef FILEOPS_INCLUDED
+#define FILEOPS_INCLUDED
 
 #include "uarray2.h" 
 
