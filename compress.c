@@ -5,11 +5,7 @@
 #include "a2methods.h"
 
 
-#define denominator #### /*Daniels said it doesn't matter as long as it doesn't pass 65535, I suggest the number 42069*/
-//Update, for compress image->denominator is the denominator to use 
-
-
-
+#define denominator 255 //RGB values to integers in the range 0 to 255
 
 
 extern void compress(FILE *input){
@@ -39,7 +35,6 @@ extern void compress(FILE *input){
 
     //methods daniel gave us to use to convert PB and PR into 4 bit values
     //unsigned Arith_index_of_chroma(float x);
-
 }
 
 extern void decompress(FILE *input){
