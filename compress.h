@@ -7,7 +7,7 @@
 extern void compress(FILE *input); // reads PPM and writes a compressed image
    //trim method goes here to round out image size
    //convert the RGB values of each individual pixel to its corresponding Y, Pb, and Pr value. Returns the converted values in Uarray2. JENNA'S PART 
-   //compress and make code words
+   //compress and make code words using component parts
    //output code words (handle out put in the .c)
 
 
