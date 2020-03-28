@@ -1,111 +1,17 @@
-//word part
+/*5. Pack each 2-by-2 block into a 32-bit word as follows:
+    • For the PB and PR (chroma) elements of the pixels, take the average
+    value of the four pixels in the block (i.e., the DC component). We’ll
+    call these average values PB and PR.
 
-struct Uncoded_Values{
-    double a;
-    double b;
-    double c;
-    double d;
-    double pr;
-    double pb;
-};
+    • Convert the PB and PR elements to four-bit values using the function
+    we provide you:
+        unsigned Arith_index_of_chroma(float x);
 
-struct Coded_Values{ 
-    int a;
-    int b;
-    int c;
-    int d;
-    unsigned int pr; //unsigned because of quantize function
-    unsigned int pb;
-};
-
-For coding b, c, and d, your objective is to code the floating-point interval [−0.3, +0.3] 
-
-extern A2Methods_UArray2 color_to_uncoded_values(A2Methods_UArray2 
-                color_space_array){
-    A2Methods_T methods = uarray2_methods_plain;
-    int width = methods->width(color_space_array);
-    int height = methods->height(color_space_array);
-    A2Methods_UArray2 uncoded_values_array = methods->new(width/2, height/2, 
-        sizeof(struct Uncoded_Values));
-    CS_values *  y1, * y2, * y3, * y4;
-    uncoded_values * temp_uncoded; 
-    for(int j = 0; j < height; j+=2){
-        for(int i = 0; i < width; i+=2){
-            
-            temp_uncoded = methods->at(uncoded_values_array, i/2, j/2);
-            y1 = methods->at(color_space_array, i, j); //Y1
-            y2 = methods->at(color_space_array, i+1, j); //Y2
-            y3 = methods->at(color_space_array, i, j+1); //Y3
-            y4 = methods->at(color_space_array, i+1, j+1); //Y4
-            temp_uncoded->a = (y4->y + y3->y + y2->y + y1->y)/4.0;
-            temp_uncoded->b = (y4->y + y3->y - y2->y - y1->y)/4.0;
-            temp_uncoded->c = (y4->y - y3->y + y2->y - y1->y)/4.0;
-            temp_uncoded->d = (y4->y - y3->y - y2->y + y1->y)/4.0;
-            temp_uncoded->pr = (y4->pr + y3->pr + y2->pr + y1->pr)/4.0;
-            temp_uncoded->pb = (y4->pb + y3->pb + y2->pb + y1->pb)/4.0;
-            if(temp_uncoded->a < 0)
-               temp_uncoded->a = 0;
-            if(temp_uncoded->a > 1)
-               temp_uncoded->a = 1;
-            if(temp_uncoded->b > 0.3)
-                temp_uncoded->b = 0.3;
-            if(temp_uncoded->b < -0.3)
-                temp_uncoded->b = -0.3;
-            if(temp_uncoded->c > 0.3)
-                temp_uncoded->c = 0.3;
-            if(temp_uncoded->c < -0.3)
-                temp_uncoded->c = -0.3;
-            if(temp_uncoded->d > 0.3)
-                temp_uncoded->d = 0.3;
-            if(temp_uncoded->d < -0.3)
-                temp_uncoded->d = -0.3; 
-        }
-    }
-    return uncoded_values_array;
-}
-
-//Component - code the a, b, c, d, Pb, and Pr values.
-
-extern A2Methods_UArray2 code_values(A2Methods_UArray2 uncoded_values_array){
-    A2Methods_T methods = uarray2_methods_plain;
-    int width = methods->width(uncoded_values_array);
-    int height = methods->height(uncoded_values_array);
-    A2Methods_UArray2 coded_values_array = methods->new(width, height, 
-        sizeof(struct Coded_Values));
-    coded_values * temp_coded;
-    uncoded_values * temp_uncoded;
-    double a, b, c, d;
-    for(int j = 0; j < height; j++){
-        for(int i = 0; i < width; i++){
-            temp_coded = methods->at(coded_values_array, i, j);
-            temp_uncoded = methods->at(uncoded_values_array, i, j);
-            a = temp_uncoded->a;
-            b = temp_uncoded->b;
-            c = temp_uncoded->c;
-            d = temp_uncoded->d;
-            if(a > 1.0)
-                a = 1.0;
-            if(a < 0)
-                a = 0;
-            if(b > 0.3)
-                b = 0.3;
-            if(b < -0.3)
-                b = -0.3;
-            if(c > 0.3)
-                c = 0.3;
-            if(c < -0.3)
-                c = -0.3;
-            if(d > 0.3)
-                d = 0.3;
-            if(d < -0.3)
-                d = -0.3;
-            temp_coded->a = round((a*511));
-            temp_coded->b = round((b*50.0));
-            temp_coded->c = round((c*50.0));
-            temp_coded->d = round((d*50.0));
-            temp_coded->pb = Arith40_index_of_chroma(temp_uncoded->pb);
-            temp_coded->pr = Arith40_index_of_chroma(temp_uncoded->pr);
-        }
-    }        
-    return coded_values_array;
-}
+    • This function takes a chroma value between −0.5 and +0.5 and returns a
+    4-bit quantized representation of the chroma value.
+        – Using a discrete cosine transform (DCT), transform the four Y (luminance/luma) values of the pixels into cosine coeffecients a, b, c, and
+        d.
+        – Convert the b, c, and~d to five-bit signed values assuming that they
+        lie between −0.3 and 0.3. Although these values can actually range
+        from −0.5 to +0.5, a value outside the range ±0.3 is quite rare. I’m
+        willing to throw away information in the rare cases in order to get more precision for the common cases*/

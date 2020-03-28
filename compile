@@ -15,7 +15,7 @@ CC=gcc
 # compile and link against course software and netpbm library
 CFLAGS="-I. -I/usr/local/cii/include -I/usr/local/include -I/csc/411/include -I/csc/411/examples/uarray2"
 LIBS="-llocality -lcii -lnetpbm -lm"
-LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib"
+LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib -L/csc/411/lib-larith411"
 
 # these flags max out warnings and debug info
 FLAGS="-no-pie -g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic"
@@ -36,19 +36,19 @@ done
 # link together .o files + libraries to make executable binaries
 # using one case statement per executable binary
 case $link in
-  all|a2test) gcc $FLAGS $LFLAGS -o a2test a2test.o \
-                  uarray2b.o a2plain.o \
+  all|image) gcc $FLAGS $LFLAGS -o image image.o bitpack.o\
+                  uarray2.o compress.o \
                   $LIBS 
               linked=yes ;;
 esac
 
-case $link in
-  all|ppmtrans) gcc $FLAGS $LFLAGS -o ppmtrans ppmtrans.o \
-                  uarray2b.o \
-                  a2blocked.o \
-                  $LIBS 
-                  linked=yes ;;
-esac
+#case $link in
+#  all|ppmtrans) gcc $FLAGS $LFLAGS -o ppmtrans ppmtrans.o \
+#                  uarray2b.o \
+#                  a2blocked.o \
+#                  $LIBS 
+#                  linked=yes ;;
+#esac
 
 # error if asked to link something we didn't recognize
 if [ $linked = no ]; then
