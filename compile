@@ -37,7 +37,7 @@ done
 # using one case statement per executable binary
 case $link in
   all|image) gcc $FLAGS $LFLAGS -o image image.o bitpack.o\
-                  uarray2.o compress.o \
+                  uarray2.o compress.o ppmFloatConversion.o\
                   $LIBS 
               linked=yes ;;
 esac
