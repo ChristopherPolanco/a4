@@ -5,8 +5,7 @@
 #include "a2methods.h"
 
 
-#define denominator 420 
-/*Daniels said it doesn't matter as long as it doesn't pass a high number stated in the doc*/
+#define denominator #### /*Daniels said it doesn't matter as long as it doesn't pass 65535, I suggest the number 42069*/
 
 extern void compress(FILE *input){
 	A2Methods_T methods = array2_methods_plain;
@@ -29,7 +28,14 @@ extern void compress(FILE *input){
     //componentParts = Jenna's method
     
     //convert to codewords next
+}
 
+extern void decompress(FILE *input){
+    unsigned height, width;
+    int read = fscanf(in, "Compressed image format 2\\n%u %u", &width, &height);
+    assert(read == 2);
+    int c = getc(in);
+    assert(c == '\n');
 
-
+    struct Pnm_ppm pixmap = { .width = width, .height = height, .denominator = denominator, .pixels = array};
 }
