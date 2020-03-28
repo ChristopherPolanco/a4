@@ -2,8 +2,7 @@
 #include <stdio.h>
 
 struct floatRGB{
-    float red;
-    float green;
-    float blue;
-    int denominator;
+    float y;
+    float pb;
+    float pr;
 };
