@@ -1,8 +1,13 @@
 #ifndef PPMFLOATCONVERSION_INCLUDED
 #define PPMFLOATCONVERSION_INCLUDED
 
-extern UArray2_T ppmToFloat(UArray2_T originalArray);
-extern UArray2_T floatToPpm(UArray2_T originalArray);
+#include <stdio.h>
+#include <stdlib.h>
+#include "uarray2.h"
+#include "a2methods.h"
+
+extern A2Methods_UArray2 ppmToFloat(Pnm_ppm image);
+extern U2Methods_UArray2 floatToPpm(U2Methods_UArray2 image); 
 
 #undef T 
 #endif
