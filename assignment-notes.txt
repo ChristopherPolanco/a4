@@ -1,0 +1,1 @@
+fileOps not needed. File handling for part A is done inside the compress files.    3/27

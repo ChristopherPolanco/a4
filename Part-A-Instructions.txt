@@ -1,0 +1,73 @@
+PART A:
+Takes in -c or -d for compress or decompress 
+
+The name of the file may be omitted, in which case you should                         
+compress or decompress standard input. If you’re given something else on the     //completed by Daniels in image.c (also decides whether decompress or compress)
+command line, print the following:
+Usage: image -d [filename]
+       image -c [filename]
+
+1. Read a PPM image from a file specified on the command line or from        //in compress files
+standard input.
+2. If necessary, trim the last row and/or column of the image so that the    //in compress files
+width and height of your image are even numbers.
+3. Change to a floating-point representation (think about the ppm format     //this is jennas file
+and its denominator)
+4. transform each pixel from RGB color space into component video color      //this is jennas file
+space (Y /PB/PR)
+5. Pack each 2-by-2 block into a 32-bit word as follows:                          //not sure on this part yet
+    • For the PB and PR (chroma) elements of the pixels, take the average
+    value of the four pixels in the block (i.e., the DC component). We’ll
+    call these average values PB and PR.                                           
+    • Convert the PB and PR elements to four-bit values using the function
+    we provide you:
+    unsigned Arith_index_of_chroma(float x);
+This function takes a chroma value between −0.5 and +0.5 and returns a
+4-bit quantized representation of the chroma value
+
+Your decompressor will be the inverse of your compressor:
+    • Read the header of the compressed file. The trick is to use fscanf() with
+    exactly the same string used to write the header:
+        unsigned height, width;
+        int read = fscanf(in, "Compressed image format 2\\n%u %u", &width, &height);
+        assert(read == 2);
+        int c = getc(in);
+        assert(c == '\n');
+    • Allocate a 2D array of pixels of the given width and height. The size
+    parameter should be the size of a colored pixel. Place the array, width,
+    height, and the denominator of your choice in a local variable as follows:
+        struct Pnm_ppm pixmap = { .width = width, .height = height
+        , .denominator = denominator, .pixels = array
+
+    • The PNM format allows some choice of denominator, but it should meet
+    some constraints:
+        – The denominator should be large enough so that the resulting image
+        does not show quantization artifacts.
+        – The denominator should be small enough that the resulting PPM file
+        is not unduly large.
+        – The denominator may be at most 65535.
+
+    • Read the 32-bit code words in sequence, remembering that each word is
+    stored in big-endian order, with the most significant byte first.
+
+    • For each code word, unpack the values a, b, c, d, and the coded PB and
+    PR into local variables.
+
+    • Convert the four-bit chroma codes to PB and PR using the function we
+    provide you:
+        float Arith_chroma_of_index(unsigned n);
+
+    • Use the inverse of the discrete cosine transform to compute Y1, Y2, Y3, and
+    Y4 from a, b, c, and d.
+
+    • For each pixel in the current 2-by-2 block, you will now have a componentvideo representation of the color of that pixel, in the form 
+    (Yi, PB, PR). Transform the pixel from component-video color to RGB color, quantize the
+    RGB values to integers in the range 0 to 255, and put the RGB values into
+    pixmap->pixels. (Because repeated quantization can introduce significant
+    errors into your computations, getting the RGB values into the right range
+    is not as easy as it looks.)
+
+    • Once you have put all the pixels into your pixmap, you can write the
+    uncompressed image to standard output by calling ppmwrite(stdout,
+    pixmap).
+
