@@ -5,4 +5,4 @@ struct floatRGB{
     float y;
     float pb;
     float pr;
-};
+} floatRGB;
