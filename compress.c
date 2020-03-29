@@ -19,7 +19,7 @@ extern void compress(FILE *input){
     //file is read and stored
     Pnm_ppm image = Pnm_ppmread(input, methods);
 
-    //trim if not even number
+    //trim bounds if not even number
     if (image->width % 2 != 0){
         image->width -= 1;
     }
@@ -28,19 +28,18 @@ extern void compress(FILE *input){
         image->height -= 1;
     }    
     
-    //convert the RGB values of each individual pixel to its corresponding Y, Pb, and Pr value. Jenna's part don't touch
-    A2Methods_UArray2 componentParts; // = Jenna's method(image)
-    //Pnm_ppmfree(&image);
+    //convert the RGB values of each individual pixel to its corresponding Y, Pb, and Pr value.
+    A2Methods_UArray2 componentParts = ppmToFloat(image);
 
-    //convert to codewords next
-    A2Methods_UArray2 words;// = getWords(componentParts); 
-    //methods->free(&componentParts);
+    //convert from Y, Pb, Pr value to bit
+    //output is also handled in the componentBit.h
+    componentToBit(componentParts);
 
-    //output words
-    //writeFile(words);
 
-    //methods daniel gave us to use to convert PB and PR into 4 bit values
-    //unsigned Arith_index_of_chroma(float x);
+    Pnm_ppmfree(&image);
+    methods->free(&componentParts);
+
+    return;
 }
 
 extern void decompress(FILE *input){
@@ -51,4 +50,7 @@ extern void decompress(FILE *input){
     assert(c == '\n');
 
     struct Pnm_ppm pixmap = { .width = width, .height = height, .denominator = denominator, .pixels = array};
+
+    
+    return;
 }
