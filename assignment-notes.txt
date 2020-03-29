@@ -1,4 +1,0 @@
-fileOps not needed. File handling for part A is done inside the compress files.    3/27
-
-IMAGE HAS DENOMINATOR STORED,  just do image->denominator 3/28
-Maybe have all the methods in on file, and then compress calls it?

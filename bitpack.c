@@ -32,7 +32,6 @@ bool Bitpack_fitss( int64_t n, unsigned width){
 uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb){
     assert((width + lsb) <= 64);
 
-//Shift bits on both sides
     word = word >> (64 - width);
     word = word << (64 - (width + lsb));
     return word;

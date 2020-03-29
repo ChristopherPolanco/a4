@@ -4,6 +4,10 @@
 #include "uarray2.h"
 #include "a2methods.h"
 
+#include "componentBit.h"
+#include "ppmFloatConversion.h"
+#include "floatrgb.h"
+
 
 #define denominator 255 //RGB values to integers in the range 0 to 255
 
