@@ -3,54 +3,61 @@
 #include "pnm.h"
 #include "uarray2.h"
 #include "a2methods.h"
+#include "a2plain.h"
 
 #include "componentBit.h"
 #include "ppmFloatConversion.h"
-#include "floatrgb.h"
 
+typedef struct floatRGB{
+    float y;
+    float pb;
+    float pr;
+} floatRGB;
 
-#define denominator 255 //RGB values to integers in the range 0 to 255
-
-//REMEMBER TO FREE UARRAYS 
 extern void compress(FILE *input){
-	A2Methods_T methods = array2_methods_plain;
-	assert(methods);
+    A2Methods_T methods = array2_methods_plain; 
 
-    //file is read and stored
+    //read file
     Pnm_ppm image = Pnm_ppmread(input, methods);
 
-    //trim bounds if not even number
-    if (image->width % 2 != 0){
-        image->width -= 1;
-    }
-
+    //trim if needed
     if (image->height % 2 != 0){
         image->height -= 1;
-    }    
-    
-    //convert the RGB values of each individual pixel to its corresponding Y, Pb, and Pr value.
-    A2Methods_UArray2 componentParts = ppmToFloat(image);
+    } 
 
-    //convert from Y, Pb, Pr value to bit
-    //output is also handled in the componentBit.h
-    componentToBit(componentParts);
+    if (image->width % 2 != 0){
+        image->width -= 1;    
+    }
 
+    UArray2_T components = UArray2_new(image->width, image->height, sizeof(floatRGB));
 
+    //Call ppmFloatConversion method to convert values
+    components = ppmToFloat(image);
+
+    //Converts component parts to bits
+    componentToBit(components);
+
+    UArray2_free(&components);
     Pnm_ppmfree(&image);
-    methods->free(&componentParts);
-
+        
     return;
 }
 
 extern void decompress(FILE *input){
     unsigned height, width;
-    int read = fscanf(in, "Compressed image format 2\\n%u %u", &width, &height);
+    int read = fscanf(input, "Compressed image format 2\\n%u %u", &width, &height);
     assert(read == 2);
-    int c = getc(in);
+    int c = getc(input);
     assert(c == '\n');
 
-    struct Pnm_ppm pixmap = { .width = width, .height = height, .denominator = denominator, .pixels = array};
+    int denominator = 255;
 
+    //Pixels are NULL since array has not been given yet
+    struct Pnm_ppm pixmap = { .width = width, .height = height, .denominator = denominator, .pixels = NULL};
+    (void) pixmap;
+
+    //bitToComponent()
+    //componentToRGB()
     
     return;
 }

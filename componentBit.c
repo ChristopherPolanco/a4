@@ -5,8 +5,14 @@
 #include "a2methods.h"
 #include "uarray2.h"
 #include "assert.h"
-#include "floatrgb.h"
+#include "arith411.h"
+#include "math.h"
 
+typedef struct floatRGB{
+    float y;
+    float pb;
+    float pr;
+} floatRGB;
 
 //A struct that stores the 4 pixels that are being averaged and worked on
 typedef struct Block {
@@ -32,34 +38,46 @@ typedef struct BitWord {
 } BitWord;
 
 //Helper function that finds the average pr and pb values
-Average findAverage(Block block){
-    Average average;
+Average* findAverage(Block* block){
+    Average* average = malloc(sizeof(average));
 
     //Compute the average pb and pr values
-    pbAverage = (block->one->pb + block->two->pb + block->three->pb + block->four->pb)/4;
-    prAverage = (block->one->pr + block->two->pr + block->three->pr + block->four->pr)/4;
+    float pbAverage = (block->one.pb + block->two.pb + block->three.pb + block->four.pb)/4.0;
+    float prAverage = (block->one.pr + block->two.pr + block->three.pr + block->four.pr)/4.0;
 
     average->pba = pbAverage;
     average->pra = prAverage;
 
-    return average
+    return average;
 }
 
+//Helper function that checks if b, c, and d are in range
+void check(float* num){
+    if(*num > 0.3){
+        *num = 0.3;
+    }
+    else if(*num < -0.3){
+        *num = -0.3;
+    }
+    return;
+}
+
+
 //Helper function to do cosine transformation
-BitWord cosineTrans(Block block){
-    BitWord word;
+BitWord* cosineTrans(Block* block){
+    BitWord* word = malloc(sizeof(BitWord));
 
     //Get the y values
-    float y1 = block->one->y;
-    float y2 = block->two->y;
-    float y3 = block->three->y;
-    float y4 = block->four->y;
+    float y1 = block->one.y;
+    float y2 = block->two.y;
+    float y3 = block->three.y;
+    float y4 = block->four.y;
 
     //Perform cosine transformation
-    a = (y4 + y3 + y2 + y1)/4.0;
-    b = (y4 + y3 - y2 - y1)/4.0;
-    c = (y4 - y3 + y2 - y1)/4.0;
-    d = (y4 - y3 - y2 + y1)/4.0;
+    float a = (y4 + y3 + y2 + y1)/4.0;
+    float b = (y4 + y3 - y2 - y1)/4.0;
+    float c = (y4 - y3 + y2 - y1)/4.0;
+    float d = (y4 - y3 - y2 + y1)/4.0;
 
     //Check that values are in range
     check(&b);
@@ -75,26 +93,19 @@ BitWord cosineTrans(Block block){
     return word;
 }
 
-//Helper function that checks if b, c, and d are in range
-void check(float * num){
-    if(*num > 0.3){
-        *num = 0.3;
-    }
-    else if(*num < -0.3){
-        *num = -0.3;
-    }
-}
 
 //Helper function that gets all the information for a BitWord
-BitWord getBitWord(Block block){
+BitWord* getBitWord(Block* block){
     //Gets the pr and pb average
-    Average average = findAverage(block);
+    Average* average = findAverage(block);
 
     unsigned finalPba = Arith_index_of_chroma(average->pba);
-    unsigned finalPbr = Arith_index_of_chroma(average->pra);
+    unsigned finalPra = Arith_index_of_chroma(average->pra);
 
     //Gets the a, b, c, and d value
-    BitWord word = cosineTrans(block);
+    BitWord* word = malloc(sizeof(BitWord));
+    
+    word = cosineTrans(block);
 
     //Add pb and pr values to the word
     word->pba = finalPba;
@@ -103,7 +114,7 @@ BitWord getBitWord(Block block){
     return word;
 }
 
-uint64_t pack(BitWord word){
+uint64_t pack(BitWord* word){
     //Initialize codeword
     uint64_t codeword = 0;
 
@@ -119,37 +130,58 @@ uint64_t pack(BitWord word){
 }
 
 //Helper function to write out the codewords
-void printOut(A2Methods_UArray2 words){
-    fprintf(stdout, "Compressed image format 2\n%u %u\n", words->width, words->height);
-    for(int i = 0; i < words->height; i++){
-        for(int j = 0; j < words->width; j++){
-            uint64_t temp = methods->at(words, j, i);
+void printOut(UArray2_T words, int width, int height){
+    fprintf(stdout, "Compressed image format 2\n%u %u\n", width, height);
+    for(int i = 0; i < height; i++){
+        for(int j = 0; j < width; j++){
+            uint64_t* temp = UArray2_at(words, j, i);
             for(int k = 3; k >= 0; k--){
                 putchar(Bitpack_gets(*temp, 8, 8 * k));
             }
         }
     }
-
     return;
 }
 
 //Transforms component to bit
-void componentToBit(A2Methods_UArray2 array){
-    A2Methods_UArray2 words = methods->new(width/2, height/2, sizeof(uint64_t));
+void componentToBit(UArray2_T array){
+    int width = UArray2_width(array);
+    int height = UArray2_height(array);
+
+    UArray2_T words = UArray2_new(width/2, height/2, sizeof(uint64_t));
+
     //Keep track of position in words
     int row = 0;
     int column = 0;
+
     //Go through array and find the two by two blocks and turn them into code words.
-    for(int i = 0; i < array->height; i = i + 2){
-        for(int j = 0; j < array->width; j = j + 2){
-            //Get the block
-            Block block = {.one = methods_at(array, j, i), .two = methods_at(array, j + 1, i),
-                            .three = methods_at(array, j, i + 1), .four = methods_at(array, j + 1, i + 1)};
-            BitWord word = getBitWord(block);
+    for(int i = 0; i < height; i = i + 2){
+        for(int j = 0; j < width; j = j + 2){
+            //allocate memory for structs
+            Block* block = malloc(sizeof(Block));
+            BitWord* word = malloc(sizeof(BitWord));
+
+            floatRGB* one = UArray2_at(array, j, i);
+            floatRGB* two = UArray2_at(array, j + 1, i);
+            floatRGB* three = UArray2_at(array, j, i + 1);
+            floatRGB* four = UArray2_at(array, j + 1, i + 1);
+
+
+            block->one = *one;
+            block->two = *two;
+            block->three = *three;
+            block->four = *four;
+
+            word = getBitWord(block);
 
             //Turn codeword into uint64
             uint64_t codeword = pack(word);
-            *methods_at(words, row, column) = codeword;
+
+
+            uint64_t* temp = UArray2_at(words, row, column); 
+            *temp = codeword;
+
+
             column = column + 1;
         }
         row = row + 1;
@@ -157,7 +189,7 @@ void componentToBit(A2Methods_UArray2 array){
     }
     
     //Write out the array of codewords
-    printOut(words);
+    printOut(words, width/2, height/2);
 
     return;
 }

@@ -8,8 +8,10 @@
 #include "a2methods.h"
 #include "uarray2.h"
 #include "assert.h"
+#include "arith411.h"
 
-extern void componentToBit(A2Methods_UArray2 array);
+
+extern void componentToBit(UArray2_T array);
 
 #undef T
 #endif

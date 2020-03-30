@@ -14,8 +14,8 @@ CC=gcc
 
 # compile and link against course software and netpbm library
 CFLAGS="-I. -I/usr/local/cii/include -I/usr/local/include -I/csc/411/include -I/csc/411/examples/uarray2"
-LIBS="-llocality -lcii -lnetpbm -lm"
-LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib -L/csc/411/lib-larith411"
+LIBS="-llocality -lcii -lnetpbm -lm -larith411"
+LFLAGS="-L/usr/local/cii/lib -L/usr/local/lib -L/csc/411/lib"
 
 # these flags max out warnings and debug info
 FLAGS="-no-pie -g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic"
@@ -36,8 +36,8 @@ done
 # link together .o files + libraries to make executable binaries
 # using one case statement per executable binary
 case $link in
-  all|image) gcc $FLAGS $LFLAGS -o image image.o bitpack.o\
-                  uarray2.o compress.o ppmFloatConversion.o\
+  all|image) gcc $FLAGS $LFLAGS -o image image.o bitpack.o a2plain.o\
+                  uarray2.o compress.o ppmFloatConversion.o componentBit.o\
                   $LIBS 
               linked=yes ;;
 esac
