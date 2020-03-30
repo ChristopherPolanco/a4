@@ -37,6 +37,13 @@ typedef struct BitWord {
     unsigned pra;
 } BitWord;
 
+typedef struct YValues {
+    float y1;
+    float y2;
+    float y3;
+    float y4;
+} YValues;
+
 //Helper function that finds the average pr and pb values
 Average* findAverage(Block* block){
     Average* average = malloc(sizeof(Average));
@@ -198,3 +205,90 @@ void componentToBit(UArray2_T array){
 
 /*Decompress functions-------------------------------------------------*/
 
+//Helper function to do the reverse cosine transformation
+YValues reverseCosine(BitWord* word, YValues* values){
+    float a = (float)(word->a/511);
+    float b = (float)(word->b/50);
+    float c = (float)(word->c/50);
+    float d = (float)(word->d/50);
+    
+    float y1 = a - b - c + d;
+    float y2 = a - b + c - d;
+    float y3 = a + b - c - d;
+    float y4 = a + b + c + d;
+    
+    values->y1 = y1;
+    values->y2 = y2;
+    values->y3 = y3;
+    values->y4 = y4;
+    
+    return values;
+}
+
+//Helper function to unpack the words
+BitWord unpack(uint64_t codeword, BitWord* word){
+    word->pra = Bitpack_getu(codeword, 4, 0);
+    word->pba = Bitpack_getu(codeword, 4, 4);
+    word->d = Bitpack_gets(codeword, 5, 8);
+    word->c = Bitpack_gets(codeword, 5, 13);
+    word->b = Bitpack_gets(codeword, 5, 18);
+    word->a = Bitpack_getu(codeword, 9, 23);
+    
+    return word;
+}
+
+UArray2_T bitToComponent(FILE * fp, unsigned int width, unsigned int height){
+    UArray2_T cv = UArray2_new(width * 2, height * 2, sizeof(floatRGB));
+    //Keep track of row and column in this array
+    int row = 0;
+    int column = 0;
+    
+    //Loop through and read in the codewords
+    for(unsigned int i = 0; i < height; i++){
+        for(unsigned int j = 0; j < width; j++){
+            uint64_t codeword = 0;
+            //Read in the word
+            for(int k = 3; k >= 0; k--){
+                uint64_t part = getc(fp);
+                codeword = Bitpack_newu(codeword, 8, (k * 8), part);
+            }
+            //Unpack it
+            BitWord* word = malloc(sizeof(BitWord));
+            word = unpack(codeword, word);
+            
+            float pb = Arith_chroma_of_index(word->pba);
+            float pr = Arith_chroma_of_index(word->pra);
+            
+            //Cosine transformation
+            YValues* values = malloc(sizeof(YValues));
+            values = reverseCosine(word, values);
+            
+            //Create the four component values
+            floatRGB* temp1 = UArray2_at(cv, column, row);
+            *temp1->y = values->y1;
+            *temp1->pb = pb;
+            *temp1->pr = pr;
+            floatRGB* temp2 = UArray2_at(cv, column + 1, row);
+            *temp2->y = values->y2;
+            *temp2->pb = pb;
+            *temp2->pr = pr;
+            floatRGB* temp3 = UArray2_at(cv, column, row + 1);
+            *temp3->y = values->y3;
+            *temp3->pb = pb;
+            *temp3->pr = pr;
+            floatRGB* temp4 = UArray2_at(cv, column + 1, row + 1);
+            *temp4->y = values->y4;
+            *temp4->pb = pb;
+            *temp4->pr = pr;
+            
+            //Free everything
+            free(values);
+            free(word);
+            column = column + 2;
+        }
+        row = row + 2;
+        column = 0;
+    }
+    
+    return cv;
+}
