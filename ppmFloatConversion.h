@@ -6,8 +6,8 @@
 #include "uarray2.h"
 #include "a2methods.h"
 
-extern A2Methods_Array2 ppmToFloat(Pnm_ppm image);
-extern A2Methods_Array2 floatToPpm(A2Methods_Array2 image); 
+extern A2Methods_Array2 ppmToFloat(Pnm_ppm image, UArray2_T newArray);
+//extern A2Methods_Array2 floatToPpm(A2Methods_Array2 image); 
 
 #undef T 
 #endif

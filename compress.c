@@ -32,13 +32,14 @@ extern void compress(FILE *input){
     UArray2_T components = UArray2_new(image->width, image->height, sizeof(floatRGB));
 
     //Call ppmFloatConversion method to convert values
-    components = ppmToFloat(image);
+    components = ppmToFloat(image, components);
 
     //Converts component parts to bits
     componentToBit(components);
 
     UArray2_free(&components);
     Pnm_ppmfree(&image);
+
         
     return;
 }

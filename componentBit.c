@@ -39,7 +39,7 @@ typedef struct BitWord {
 
 //Helper function that finds the average pr and pb values
 Average* findAverage(Block* block){
-    Average* average = malloc(sizeof(average));
+    Average* average = malloc(sizeof(Average));
 
     //Compute the average pb and pr values
     float pbAverage = (block->one.pb + block->two.pb + block->three.pb + block->four.pb)/4.0;
@@ -64,9 +64,7 @@ void check(float* num){
 
 
 //Helper function to do cosine transformation
-BitWord* cosineTrans(Block* block){
-    BitWord* word = malloc(sizeof(BitWord));
-
+BitWord* cosineTrans(Block* block, BitWord* word){
     //Get the y values
     float y1 = block->one.y;
     float y2 = block->two.y;
@@ -95,21 +93,20 @@ BitWord* cosineTrans(Block* block){
 
 
 //Helper function that gets all the information for a BitWord
-BitWord* getBitWord(Block* block){
+BitWord* getBitWord(Block* block, BitWord* word){
     //Gets the pr and pb average
     Average* average = findAverage(block);
 
     unsigned finalPba = Arith_index_of_chroma(average->pba);
     unsigned finalPra = Arith_index_of_chroma(average->pra);
-
-    //Gets the a, b, c, and d value
-    BitWord* word = malloc(sizeof(BitWord));
     
-    word = cosineTrans(block);
+    word = cosineTrans(block, word);
 
     //Add pb and pr values to the word
     word->pba = finalPba;
     word->pra = finalPra;
+
+    free(average);
 
     return word;
 }
@@ -172,7 +169,7 @@ void componentToBit(UArray2_T array){
             block->three = *three;
             block->four = *four;
 
-            word = getBitWord(block);
+            word = getBitWord(block, word);
 
             //Turn codeword into uint64
             uint64_t codeword = pack(word);
@@ -183,6 +180,9 @@ void componentToBit(UArray2_T array){
 
 
             column = column + 1;
+
+            free(block);
+            free(word);
         }
         row = row + 1;
         column = 0;
@@ -191,5 +191,9 @@ void componentToBit(UArray2_T array){
     //Write out the array of codewords
     printOut(words, width/2, height/2);
 
+    UArray2_free(&words);
+
     return;
 }
+
+/*Decompress functions-------------------------------------------------*/

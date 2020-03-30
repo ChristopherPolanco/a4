@@ -13,10 +13,9 @@ typedef struct floatRGB{
 } floatRGB;
 
 
-UArray2_T ppmToFloat(Pnm_ppm image){
+UArray2_T ppmToFloat(Pnm_ppm image, UArray2_T newArray){
     int width = image->width;
     int height = image->height;
-    UArray2_T newArray = UArray2_new(width, height, sizeof(floatRGB));
     
     //Loop through each pixel and convert each rgb value to a floating point value.
     for(int i = 0; i < height; i++){
@@ -40,6 +39,7 @@ UArray2_T ppmToFloat(Pnm_ppm image){
     
     return newArray;
 }
+
 
 UArray2_T floatToPpm(UArray2_T image){
     int width = UArray2_width(image);
