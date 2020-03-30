@@ -197,3 +197,4 @@ void componentToBit(UArray2_T array){
 }
 
 /*Decompress functions-------------------------------------------------*/
+

@@ -55,10 +55,17 @@ extern void decompress(FILE *input){
 
     //Pixels are NULL since array has not been given yet
     struct Pnm_ppm pixmap = { .width = width, .height = height, .denominator = denominator, .pixels = NULL};
-    (void) pixmap;
 
-    //bitToComponent()
-    //componentToRGB()
-    
+    (void) pixmap;
+    /*
+    UArray2_T components = bitToComponent(pixmap);
+    UArray2_T image = componentToRGB(components);
+    writeImage(image);
+
+    UArray2_free(components);
+    UArray2_free(image)
+    Pnm_ppmfree(&pixmap);
+    */
+
     return;
 }
