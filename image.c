@@ -7,6 +7,7 @@
 static void (*compress_or_decompress)(FILE *input) = compress;
 
 int main(int argc, char *argv[]) {
+  printf("Main of image\n");
   int i;
   for (i = 1; i < argc; i++) {
     if (!strcmp(argv[i], "-c")) {

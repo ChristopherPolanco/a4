@@ -35,8 +35,7 @@ UArray2_T ppmToFloat(Pnm_ppm image, UArray2_T newArray){
             newPixel->pb = pb;
             newPixel->pr = pr;
         }
-    }
-    
+    }   
     return newArray;
 }
 

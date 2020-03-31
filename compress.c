@@ -19,6 +19,7 @@ extern void compress(FILE *input){
 
     //read file
     Pnm_ppm image = Pnm_ppmread(input, methods);
+    assert(image);
 
     //trim if needed
     if (image->height % 2 != 0){
@@ -30,12 +31,15 @@ extern void compress(FILE *input){
     }
 
     UArray2_T components = UArray2_new(image->width, image->height, sizeof(floatRGB));
+    assert(components);
 
     //Call ppmFloatConversion method to convert values
     components = ppmToFloat(image, components);
 
     //Converts component parts to bits
     componentToBit(components);
+    printf("\n\nMade it passed componentToBit :)\n\n");
+
 
     UArray2_free(&components);
     Pnm_ppmfree(&image);

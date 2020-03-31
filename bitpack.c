@@ -55,6 +55,7 @@ uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t valu
    uint64_t var = pow(2, width) - 1;
    var = ~(var << lsb);
    word = (word & var) | (value << (lsb));
+   
    return word;
 }
 

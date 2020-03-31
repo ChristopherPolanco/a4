@@ -133,11 +133,14 @@ uint64_t pack(BitWord* word){
     codeword = Bitpack_newu(codeword, 4, 4, word->pba);
     codeword = Bitpack_newu(codeword, 4, 0, word->pra);
 
+
     return codeword;
 }
 
 //Helper function to write out the codewords
 void printOut(UArray2_T words, int width, int height){
+    printf("\n\nMade it to printOUt\n\n");
+
     fprintf(stdout, "Compressed image format 2\n%u %u\n", width, height);
     for(int i = 0; i < height; i++){
         for(int j = 0; j < width; j++){
@@ -152,10 +155,13 @@ void printOut(UArray2_T words, int width, int height){
 
 //Transforms component to bit
 void componentToBit(UArray2_T array){
+    printf("\n\nMade it to componentToBit\n\n");
+
     int width = UArray2_width(array);
     int height = UArray2_height(array);
 
     UArray2_T words = UArray2_new(width/2, height/2, sizeof(uint64_t));
+    assert(words);
 
     //Keep track of position in words
     int row = 0;
@@ -185,7 +191,7 @@ void componentToBit(UArray2_T array){
             uint64_t codeword = pack(word);
 
 
-            uint64_t* temp = UArray2_at(words, row, column); 
+            uint64_t* temp = UArray2_at(words, column, row); 
             *temp = codeword;
 
 
@@ -197,7 +203,7 @@ void componentToBit(UArray2_T array){
         row = row + 1;
         column = 0;
     }
-    
+    printf("\n\nMAKES IT OUT OF LOOPS COMPONENT BIT\n\n");    
     //Write out the array of codewords
     printOut(words, width/2, height/2);
 

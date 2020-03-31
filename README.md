@@ -11,6 +11,9 @@ We recieved no assistance on this assignment.
 
 
 – Identifies what has been correctly implemented and what has not
+Compression is fully functional. All helper functions used perform as they are meant to. 
+Bitpack is fully functional.
+Decompression is tbd.
 
 
 – Explains the architecture of your solution
