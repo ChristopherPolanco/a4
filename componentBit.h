@@ -9,9 +9,10 @@
 #include "uarray2.h"
 #include "assert.h"
 #include "arith411.h"
-
+#include "pnm.h"
 
 extern void componentToBit(UArray2_T array);
+extern void bitToComponent(FILE* fp, unsigned int width, unsigned int height, Pnm_ppm pixmap);
 
 #undef T
 #endif

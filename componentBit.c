@@ -7,6 +7,9 @@
 #include "assert.h"
 #include "arith411.h"
 #include "math.h"
+#include "ppmFloatConversion.h"
+#include "pnm.h"
+
 
 typedef struct floatRGB{
     float y;
@@ -222,7 +225,7 @@ YValues reverseCosine(BitWord* word, YValues* values){
     values->y3 = y3;
     values->y4 = y4;
     
-    return values;
+    return *values;
 }
 
 //Helper function to unpack the words
@@ -234,10 +237,10 @@ BitWord unpack(uint64_t codeword, BitWord* word){
     word->b = Bitpack_gets(codeword, 5, 18);
     word->a = Bitpack_getu(codeword, 9, 23);
     
-    return word;
+    return *word;
 }
 
-UArray2_T bitToComponent(FILE * fp, unsigned int width, unsigned int height){
+extern void bitToComponent(FILE * fp, unsigned int width, unsigned int height, Pnm_ppm pixmap){
     UArray2_T cv = UArray2_new(width * 2, height * 2, sizeof(floatRGB));
     //Keep track of row and column in this array
     int row = 0;
@@ -254,32 +257,32 @@ UArray2_T bitToComponent(FILE * fp, unsigned int width, unsigned int height){
             }
             //Unpack it
             BitWord* word = malloc(sizeof(BitWord));
-            word = unpack(codeword, word);
+            *word = unpack(codeword, word);
             
             float pb = Arith_chroma_of_index(word->pba);
             float pr = Arith_chroma_of_index(word->pra);
             
             //Cosine transformation
             YValues* values = malloc(sizeof(YValues));
-            values = reverseCosine(word, values);
+            *values = reverseCosine(word, values);
             
             //Create the four component values
             floatRGB* temp1 = UArray2_at(cv, column, row);
-            *temp1->y = values->y1;
-            *temp1->pb = pb;
-            *temp1->pr = pr;
+            temp1->y = values->y1;
+            temp1->pb = pb;
+            temp1->pr = pr;
             floatRGB* temp2 = UArray2_at(cv, column + 1, row);
-            *temp2->y = values->y2;
-            *temp2->pb = pb;
-            *temp2->pr = pr;
+            temp2->y = values->y2;
+            temp2->pb = pb;
+            temp2->pr = pr;
             floatRGB* temp3 = UArray2_at(cv, column, row + 1);
-            *temp3->y = values->y3;
-            *temp3->pb = pb;
-            *temp3->pr = pr;
+            temp3->y = values->y3;
+            temp3->pb = pb;
+            temp3->pr = pr;
             floatRGB* temp4 = UArray2_at(cv, column + 1, row + 1);
-            *temp4->y = values->y4;
-            *temp4->pb = pb;
-            *temp4->pr = pr;
+            temp4->y = values->y4;
+            temp4->pb = pb;
+            temp4->pr = pr;
             
             //Free everything
             free(values);
@@ -289,6 +292,15 @@ UArray2_T bitToComponent(FILE * fp, unsigned int width, unsigned int height){
         row = row + 2;
         column = 0;
     }
+
+    UArray2_T image = floatToPpm(cv);
+    pixmap->pixels = image;
     
-    return cv;
+    Pnm_ppmwrite(stdout, pixmap);
+
+    UArray2_free(&cv);
+    UArray2_free(&image);
+    Pnm_ppmfree(&pixmap);
+        
+    return;
 }

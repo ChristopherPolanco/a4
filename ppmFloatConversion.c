@@ -41,6 +41,14 @@ UArray2_T ppmToFloat(Pnm_ppm image, UArray2_T newArray){
 }
 
 
+void check2(float* value){
+    if(*value < 0.0) *value = 0.0;
+    if(*value > 1.0) *value = 1.0;
+
+    return;
+}
+
+
 UArray2_T floatToPpm(UArray2_T image){
     int width = UArray2_width(image);
     int height = UArray2_height(image);
@@ -54,6 +62,10 @@ UArray2_T floatToPpm(UArray2_T image){
             float r = (1.0 * pixel->y) + (0.0 * pixel->pb) + (1.402 * pixel->pr);
             float g = (1.0 * pixel->y) - (0.344136 * pixel->pb) - (0.714136 * pixel->pr);
             float b = (1.0 * pixel->y) + (1.772 * pixel->pb) + (0.0 * pixel->pr);
+
+            check2(&r);
+            check2(&g);
+            check2(&b);
 
             int red = (int)(r * denominator);
             int green = (int)(g * denominator);

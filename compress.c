@@ -44,6 +44,7 @@ extern void compress(FILE *input){
     return;
 }
 
+
 extern void decompress(FILE *input){
     unsigned height, width;
     int read = fscanf(input, "Compressed image format 2\\n%u %u", &width, &height);
@@ -54,18 +55,13 @@ extern void decompress(FILE *input){
     int denominator = 255;
 
     //Pixels are NULL since array has not been given yet
-    struct Pnm_ppm pixmap = { .width = width, .height = height, .denominator = denominator, .pixels = NULL};
-
-    (void) pixmap;
-    /*
-    UArray2_T components = bitToComponent(pixmap);
-    UArray2_T image = componentToRGB(components);
-    writeImage(image);
-
-    UArray2_free(components);
-    UArray2_free(image)
-    Pnm_ppmfree(&pixmap);
-    */
+    Pnm_ppm pixmap = malloc(sizeof(Pnm_ppm));
+    pixmap->width = width;
+    pixmap->height = height;
+    pixmap->denominator = denominator;
+    pixmap->pixels = NULL;
+    
+    bitToComponent(input, width, height, pixmap);
 
     return;
 }
